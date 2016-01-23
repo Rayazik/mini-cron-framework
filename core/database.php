@@ -9,7 +9,7 @@ namespace Core;
  */
 class Database {
 	
-	protected $db;
+	protected static $db;
 	
 	public function __construct() {
 		if (config('db_autoload')) {
@@ -21,7 +21,7 @@ class Database {
 	 * Разрешаем клонировать объект только по ссылке
 	 * @return \Core\Database
 	 */
-	public function &__clone() {
+	public function __clone() {
 		return $this;
 	}
 	
@@ -32,16 +32,16 @@ class Database {
 	 */
 	public function init() {
 		
-		if (is_null($this->db)) {
+		if (is_null(self::$db)) {
 		
 			try {
 				// коннектимся к mysql
-				$this->db = mysqli_connect(config('db_hostname'), config('db_username'), config('db_password'));
-				mysqli_select_db($this->db, config('db_database'));
-				mysqli_query($this->db, "SET NAMES " . config('db_char_set') . " COLLATE " . config('db_dbcollat'));
+				self::$db = mysqli_connect(config('db_hostname'), config('db_username'), config('db_password'));
+				mysqli_select_db(self::$db, config('db_database'));
+				mysqli_query(self::$db, "SET NAMES " . config('db_char_set') . " COLLATE " . config('db_dbcollat'));
 				var_dump("DB is loaded!");
 			} catch (Exception $e) {
-				throw new \Core\Database\Exception("Ошибка БД: " . mysqli_error($this->db));
+				throw new \Core\Database\Exception("Ошибка БД: " . mysqli_error(self::$db));
 				return false;
 			}
 			
@@ -55,21 +55,21 @@ class Database {
 		// если запрос не пустой
 		if (!empty($query)) {
 			
-			if (is_null($this->db)) {
+			if (is_null(self::$db)) {
 				throw new \Core\Database\Exception("DB is not loaded");
 				return new \Core\Database\Result();
 			}
 			
-			$result = mysqli_query($this->db, $query);
+			$result = mysqli_query(self::$db, $query);
 				
 			if (!$result) {
-				throw new \Core\Database\Exception(mysqli_error($this->db), mysqli_errno($this->db));
+				throw new \Core\Database\Exception(mysqli_error(self::$db), mysqli_errno(self::$db));
 				// экономим память, освобождаем результат запроса
-				mysqli_free_result($this->db, $result);
+				mysqli_free_result(self::$db, $result);
 			} else {
 				// экономим память, освобождаем результат запроса
-				mysqli_free_result($this->db, $result);
-				return new \Core\Database\Result($this->db, $result);
+				mysqli_free_result(self::$db, $result);
+				return new \Core\Database\Result(self::$db, $result);
 			}
 					
 		}

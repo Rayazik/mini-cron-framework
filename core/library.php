@@ -9,4 +9,8 @@ namespace Core;
  */
 class Library extends \Core\Pattern\Decorator {
 	
+	public function __construct() {
+		parent::__construct();
+	}
+	
 }
