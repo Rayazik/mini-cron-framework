@@ -37,6 +37,7 @@ foreach (['config', 'database',] as $config_filename) {
  * @param string $item
  */
 function config($item = null) {
+	global $config;
 	if (is_null($item)) {
 		return $config;
 	} else {
@@ -49,3 +50,5 @@ function &get_instance() {
 	return \Core\FM::getInstance();
 }
 
+// инициализируем ядро фреймворка
+new \Core\FM();

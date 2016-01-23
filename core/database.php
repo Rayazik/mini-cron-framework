@@ -12,9 +12,17 @@ class Database {
 	protected $db;
 	
 	public function __construct() {
-		if (config_item('db_autoload')) {
+		if (config('db_autoload')) {
 			$this->init();
 		}
+	}
+	
+	/**
+	 * Разрешаем клонировать объект только по ссылке
+	 * @return \Core\Database
+	 */
+	public function &__clone() {
+		return $this;
 	}
 	
 	/**
@@ -24,14 +32,19 @@ class Database {
 	 */
 	public function init() {
 		
-		try {
-			// коннектимся к mysql
-			$this->db = mysqli_connect(config('db_hostname'), config('db_username'), config('db_password'));
-			mysqli_select_db($this->db, config('db_database'));
-			mysqli_query($this->db, "SET NAMES " . config('db_char_set') . " COLLATE " . config('db_dbcollat'));
-		} catch (Exception $e) {
-			throw new \Core\Database\Exception("Ошибка БД: " . mysqli_error($this->db));
-			return false;
+		if (is_null($this->db)) {
+		
+			try {
+				// коннектимся к mysql
+				$this->db = mysqli_connect(config('db_hostname'), config('db_username'), config('db_password'));
+				mysqli_select_db($this->db, config('db_database'));
+				mysqli_query($this->db, "SET NAMES " . config('db_char_set') . " COLLATE " . config('db_dbcollat'));
+				var_dump("DB is loaded!");
+			} catch (Exception $e) {
+				throw new \Core\Database\Exception("Ошибка БД: " . mysqli_error($this->db));
+				return false;
+			}
+			
 		}
 		
 		return true;
@@ -41,6 +54,11 @@ class Database {
 
 		// если запрос не пустой
 		if (!empty($query)) {
+			
+			if (is_null($this->db)) {
+				throw new \Core\Database\Exception("DB is not loaded");
+				return new \Core\Database\Result();
+			}
 			
 			$result = mysqli_query($this->db, $query);
 				
