@@ -61,7 +61,7 @@ class Loader {
 			$path = explode('/', $name);
 			$path = array_map(function ($el) {return ucfirst($el);}, $path);
 			
-			$classname = 'Libraries\\' . implode('\\', $path);
+			$classname = 'Lib\\' . implode('\\', $path);
 		
 			$this->instance->{$system_name} = new $classname($params);
 		

@@ -12,4 +12,6 @@ define('CORE_PATH', ROOT_PATH . 'core' . DIRECTORY_SEPARATOR);
 // инициализируем загрузку ядра фреймворка
 include_once CORE_PATH.'autoload.php';
 
-new \Core\Cron('vk/test');
+// инициализация скрипта
+$cron = new \Core\Cron();
+$cron->run('vk/group/posting', []);
